@@ -1,20 +1,38 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, AfterViewInit, ElementRef, ViewChildren, QueryList } from '@angular/core';
 
 import { IProduct } from './product';
 import { ProductService } from './product.service';
+
 
 @Component({
     templateUrl: './product-list.component.html',
     styleUrls: ['./product-list.component.css']
 })
-export class ProductListComponent implements OnInit {
+export class ProductListComponent implements OnInit, AfterViewInit {
     pageTitle: string = 'Product List';
-    listFilter: string;
     showImage: boolean;
 
     imageWidth: number = 50;
     imageMargin: number = 2;
     errorMessage: string;
+
+    /* Using ViewChild */
+    @ViewChild('filterElement') filterElementRef : ElementRef;
+
+    /* Using ViewChilder */
+    @ViewChildren('filterElement , nameElement')
+    inputElementRefs: QueryList<ElementRef>
+
+    /*Communicating using getter and setters */
+    private _listFilter: string;
+    get listFilter(): string {
+      return this._listFilter;
+    }
+
+    set listFilter(value: string) {
+      this._listFilter = value;
+      this.performFilter(this.listFilter);
+    }
 
     filteredProducts: IProduct[];
     products: IProduct[];
@@ -29,6 +47,17 @@ export class ProductListComponent implements OnInit {
             },
             (error: any) => this.errorMessage = <any>error
         );
+    }
+
+    /* created for the viewchild & viewChildren  */
+    ngAfterViewInit(): void {
+      this.filterElementRef.nativeElement.focus();
+      console.log(this.inputElementRefs);
+    }
+
+    onFilterChange(filter: string) : void {
+      this.listFilter = filter;
+      this.performFilter(this.listFilter);
     }
 
     toggleImage(): void {
